@@ -1,0 +1,128 @@
+  #signInWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+  }
+  
+  #signInContainer {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  #title {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 1rem;
+    text-align: center;
+    /* margin-left: 40px;  */
+  }
+  
+  #accountCards {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .cardElement {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+    background-color: #f7f7f7;
+    margin: 0 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .cardElement:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .cardElement a {
+    display: block;
+    color: #333;
+    font-size: 1.5rem;
+    text-decoration: none;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  #alternativeSignIn {
+    text-align: center;
+    margin: 1rem 0;
+    color: #666;
+  }
+  
+  input[type="email"],
+  input[type="password"] {
+    width: calc(100% - 1rem);
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
+  
+  #forgotPassword {
+    text-align: center;
+    margin: 0.5rem 0 1rem;
+    color: #007bff;
+    cursor: pointer;
+  }
+  
+  #signInContainerButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .button {
+    padding: 0.75rem;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #0056b3;
+    transition: background-color 0.3s, transform 0.3s;
+  }
+  .back{
+    padding: 0.75rem;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #35fc49;
+    /* transition: background-color 0.3s, transform 0.3s; */
+    width: 60px;
+    float: right;
+  }
+  
+  .button:hover {
+    background-color: #00448d;
+  }
+  
+  #signInContainerButtons .button:hover {
+    background-color: #004494;
+  }
+  
+  .shake {
+    animation: shake 0.6s ease-in-out;
+  }
+  
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
+  

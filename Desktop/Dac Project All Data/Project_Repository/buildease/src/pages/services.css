@@ -1,0 +1,86 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f9fc;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .servicesWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 1rem;
+  }
+  
+  .servicesContainer {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    position: relative;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  
+  .servicesContainer:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+  
+  .backButton {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    background-color: #3498db;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 80px;
+  }
+  
+  .backButton:hover {
+    background-color: #2980b9;
+  }
+  
+  .title {
+    font-size: 2.4rem;
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-weight: 600;
+  }
+  
+  .servicesList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .serviceItem {
+    background: #ecf0f1;
+    padding: 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .serviceItem:hover {
+    background-color: #bdc3c7;
+    transform: translateY(-5px);
+  }
+  
+  .serviceItem h3 {
+    font-size: 1.5rem;
+    color: #34495e;
+    margin-bottom: 0.5rem;
+  }
+  
+  .serviceItem p {
+    font-size: 1rem;
+    color: #7f8c8d;
+  }
+  
