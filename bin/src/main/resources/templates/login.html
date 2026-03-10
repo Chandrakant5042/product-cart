@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #4e73df, #1cc88a);
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 350px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .login-btn {
+            background-color: #4e73df;
+            color: white;
+        }
+
+        .login-btn:hover {
+            background-color: #2e59d9;
+        }
+
+        .signup-btn {
+            background-color: #858796;
+            color: white;
+        }
+
+        .signup-btn:hover {
+            background-color: #6c757d;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: green;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Welcome Back</h2>
+
+    <div id="message"></div>
+
+    <form id="loginForm">
+        <input type="text" id="username" placeholder="Username" required/>
+        <input type="password" id="password" placeholder="Password" required/>
+
+        <button type="submit" class="login-btn">Login</button>
+        <button type="button" class="signup-btn" onclick="goToSignup()">Don't have account? Signup</button>
+    </form>
+</div>
+
+<script>
+	document.getElementById("loginForm").addEventListener("submit", async function(e) {
+	    e.preventDefault();
+
+	    try {
+	        const response = await fetch("/api/v1/login", {
+	            method: "POST",
+	            headers: { "Content-Type": "application/json" },
+	            credentials: "include",
+	            body: JSON.stringify({
+	                username: document.getElementById("username").value,
+	                password: document.getElementById("password").value
+	            })
+	        });
+
+	        if (!response.ok) {
+	            throw new Error("Invalid credentials");
+	        }
+
+	        window.location.href = "/products-page";
+
+	    } catch (error) {
+	        document.getElementById("message").innerHTML =
+	            "<div class='error'>Invalid username or password</div>";
+	    }
+	});
+
+function goToSignup() {
+    window.location.href = "/signup";
+}
+</script>
+
+</body>
+</html>

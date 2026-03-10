@@ -1,6 +1,5 @@
 package com.basket.productapi.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,14 +10,14 @@ import lombok.Setter;
 @Table(name = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(unique = true)
-    private String username;
+	@Column(unique = true)
+	private String username;
 
-    private String password;
+	private String password;
 
-    private String role; // ROLE_USER or ROLE_ADMIN
+	private String role;
 }

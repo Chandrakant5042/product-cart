@@ -1,9 +1,8 @@
 package com.basket.productapi.controller;
 
 import java.util.HashMap;
-import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -19,90 +18,62 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.basket.productapi.dto.ProductRequest;
 import com.basket.productapi.dto.ProductResponse;
-import com.basket.productapi.entity.Product;
-import com.basket.productapi.repository.ProductRepository;
 import com.basket.productapi.service.ProductService;
-
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/products")
+@RequiredArgsConstructor
+@Slf4j
 public class ProductController {
 
-	private static final Logger log = LoggerFactory.getLogger(ProductController.class);
-	
-	@Autowired
-    private ProductService productService;
-	@Autowired
-	private ProductRepository productRepository;
+	private final ProductService productService;
 
-    
-    @GetMapping
-    public ResponseEntity<Map<String, Object>> getAllProducts(
-            @PageableDefault(size = 3) Pageable pageable) {
+	@GetMapping
+	public ResponseEntity<Map<String, Object>> getAllProducts(@PageableDefault(size = 3) Pageable pageable) {
+		Page<ProductResponse> page = productService.getAllProducts(pageable);
 
-        Page<ProductResponse> page = productService.getAllProducts(pageable);
+		Map<String, Object> response = new HashMap<>();
+		response.put("content", page.getContent());
+		response.put("page", page.getNumber());
+		response.put("size", page.getSize());
+		response.put("totalElements", page.getTotalElements());
+		response.put("totalPages", page.getTotalPages());
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("content", page.getContent());
-        response.put("page", page.getNumber());
-        response.put("size", page.getSize());
-        response.put("totalElements", page.getTotalElements());
-        response.put("totalPages", page.getTotalPages());
+		return ResponseEntity.ok(response);
+	}
 
-        return ResponseEntity.ok(response);
-    }
+	@GetMapping("/{id}")
+	public ProductResponse getById(@PathVariable Long id) {
+		log.info("Fetching product with id {}", id);
+		return productService.getProduct(id);
+	}
 
-    @GetMapping("/{id}")
-    public ProductResponse getById(@PathVariable Long id) {
-    	log.info("Fetching product with id {}", id);
-        return productService.getProduct(id);
-    }
+	@PostMapping
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductRequest request,
+			Authentication authentication) {
+		log.info("Create product request by {}", authentication.getName());
+		ProductResponse response = productService.createProduct(request, authentication.getName());
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
 
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductResponse> create(
-            @Valid @RequestBody ProductRequest request,
-            Authentication authentication) {
+	@PutMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<ProductResponse> update(@PathVariable Long id, @Valid @RequestBody ProductRequest request,
+			Authentication authentication) {
+		ProductResponse response = productService.updateProduct(id, request, authentication.getName());
+		return ResponseEntity.ok(response);
+	}
 
-    	log.info("Create product request received");
-
-        log.info("Logged in user: {}", authentication.getName());
-        log.info("User authorities: {}", authentication.getAuthorities());
-//        System.out.println("Auth object: " + authentication);
-//        System.out.println("Username: " + authentication.getName());
-//        System.out.println("Authorities: " + authentication.getAuthorities());
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(productService.createProduct(request, authentication.getName()));
-    }
-    
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductResponse> update(
-            @PathVariable Long id,
-            @Valid @RequestBody ProductRequest request,
-            Authentication authentication) {
-
-        ProductResponse response =
-                productService.updateProduct(id, request, authentication.getName());
-
-        return ResponseEntity.ok(response);
-    }
-    
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-
-        productService.deleteProduct(id);
-
-        return ResponseEntity.noContent().build();
-    }
-    
-    
+	@DeleteMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<Void> delete(@PathVariable Long id) {
+		productService.deleteProduct(id);
+		return ResponseEntity.noContent().build();
+	}
 }

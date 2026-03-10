@@ -1,12 +1,7 @@
 package com.basket.productapi.dto;
 
+import jakarta.validation.constraints.NotBlank;
 
-
-import lombok.Data;
-
-@Data
-public class LoginRequest {
-
-    private String username;
-    private String password;
+public record LoginRequest(@NotBlank(message = "Username is required") String username,
+		@NotBlank(message = "Password is required") String password) {
 }

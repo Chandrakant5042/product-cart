@@ -1,7 +1,7 @@
 package com.basket.productapi.dto;
 
-public record RegisterRequest(
-        String username,
-        String password,
-        String role
-) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record RegisterRequest(@NotBlank(message = "Username is required") String username,
+		@NotBlank(message = "Password is required") String password, String role) {
+}

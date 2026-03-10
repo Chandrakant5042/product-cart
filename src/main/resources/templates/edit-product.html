@@ -78,6 +78,7 @@
         }
     </style>
 </head>
+
 <body>
 
 <div class="card">
@@ -87,28 +88,43 @@
 
     <form id="editForm">
         <input type="text" id="productName" placeholder="Product Name" required/>
-		<input type="number" id="quantity" placeholder="Quantity" min="0" required/>
+        <input type="number" id="quantity" placeholder="Quantity" min="0" required/>
+
         <button type="submit" class="update-btn">Update Product</button>
         <button type="button" class="back-btn" onclick="goBack()">Back to Products</button>
     </form>
 </div>
 
 <script>
+
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
 const messageDiv = document.getElementById("message");
 
+if (!id) {
+    messageDiv.innerHTML = "<div class='error'>Invalid product ID</div>";
+    setTimeout(() => window.location.href = "/products-page", 1500);
+}
+
 async function loadProduct() {
 
     try {
+
         const response = await fetch("/api/v1/products/" + id, {
-            credentials: "include" // ✅ send cookies automatically
+            credentials: "include"
         });
 
         if (response.status === 401 || response.status === 403) {
-            messageDiv.innerHTML = "<div class='error'>Session expired. Please login again.</div>";
+            messageDiv.innerHTML =
+                "<div class='error'>Session expired. Please login again.</div>";
             setTimeout(() => window.location.href = "/login-page", 1500);
+            return;
+        }
+
+        if (response.status === 404) {
+            messageDiv.innerHTML =
+                "<div class='error'>Product not found</div>";
             return;
         }
 
@@ -118,62 +134,80 @@ async function loadProduct() {
 
         const data = await response.json();
 
-        document.getElementById("productName").value = data.productName;
-        document.getElementById("quantity").value = data.quantity;
+        document.getElementById("productName").value = data.productName || "";
+        document.getElementById("quantity").value = data.quantity ?? 0;
 
-    } catch (error) {
-        messageDiv.innerHTML = "<div class='error'>Unable to load product</div>";
+    }
+    catch (error) {
+
+        console.error("Load product error:", error);
+
+        messageDiv.innerHTML =
+            "<div class='error'>Unable to load product</div>";
     }
 }
 
 document.getElementById("editForm").addEventListener("submit", async function(e) {
 
     e.preventDefault();
-
-    const messageDiv = document.getElementById("message");
     messageDiv.innerHTML = "";
+
+    const name = document.getElementById("productName").value.trim();
+    const quantity = parseInt(document.getElementById("quantity").value);
+
+    if (!name) {
+        messageDiv.innerHTML =
+            "<div class='error'>Product name is required</div>";
+        return;
+    }
+
+    if (isNaN(quantity) || quantity < 0) {
+        messageDiv.innerHTML =
+            "<div class='error'>Quantity must be valid</div>";
+        return;
+    }
 
     try {
 
         const response = await fetch("/api/v1/products/" + id, {
+
             method: "PUT",
-            credentials: "include", // send cookies automatically
+            credentials: "include",
+
             headers: {
                 "Content-Type": "application/json"
             },
+
             body: JSON.stringify({
-                productName: document.getElementById("productName").value,
-                quantity: parseInt(document.getElementById("quantity").value)
+                productName: name,
+                quantity: quantity
             })
         });
 
-        // ✅ Session expired check
-		if (response.status === 401) {
+        if (response.status === 401) {
 
-		    messageDiv.innerHTML =
-		        "<div class='error'>Session expired. Please login again.</div>";
+            messageDiv.innerHTML =
+                "<div class='error'>Session expired. Please login again.</div>";
 
-		    setTimeout(() => {
-		        window.location.href = "/login-page";
-		    }, 1500);
+            setTimeout(() => {
+                window.location.href = "/login-page";
+            }, 1500);
 
-		    return;
-		}
+            return;
+        }
 
-		if (response.status === 403) {
+        if (response.status === 403) {
 
-		    messageDiv.innerHTML =
-		        "<div class='error'>You are not allowed to update this product.</div>";
+            messageDiv.innerHTML =
+                "<div class='error'>You are not allowed to update this product.</div>";
 
-		    return;
-		}
+            return;
+        }
 
-        // ❌ Other errors
         if (!response.ok) {
             throw new Error("Update failed");
         }
 
-        // ✅ Success
         messageDiv.innerHTML =
             "<div class='success'>Product updated successfully!</div>";
 
@@ -197,6 +231,7 @@ function goBack() {
 }
 
 loadProduct();
+
 </script>
 
 </body>

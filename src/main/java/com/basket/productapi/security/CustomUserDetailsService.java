@@ -3,28 +3,21 @@ package com.basket.productapi.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
-
 import com.basket.productapi.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException {
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        var user = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found"));
+		var user = userRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return org.springframework.security.core.userdetails.User
-                .builder()
-                .username(user.getUsername())
-                .password(user.getPassword())
-                .roles(user.getRole().replace("ROLE_", "")) 
-                .build();
-    }
+		return org.springframework.security.core.userdetails.User.builder().username(user.getUsername())
+				.password(user.getPassword()).roles(user.getRole().replace("ROLE_", "")).build();
+	}
 }

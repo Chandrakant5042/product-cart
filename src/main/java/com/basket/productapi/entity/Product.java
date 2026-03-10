@@ -6,66 +6,82 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
-@Table(name = "product",
-       indexes = {
-           @Index(name = "idx_product_name", columnList = "product_name")
-       })
+@Table(name = "product", indexes = { @Index(name = "idx_product_name", columnList = "product_name") })
 public class Product {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(name = "product_name", nullable = false)
-    private String productName;
+	@Column(name = "product_name", nullable = false)
+	private String productName;
 
-    @Column(nullable = false)
-    private String createdBy;
+	@Column(nullable = false)
+	private String createdBy;
 
-    @Column(nullable = false)
-    private LocalDateTime createdOn;
+	@Column(nullable = false)
+	private LocalDateTime createdOn;
 
-    private String modifiedBy;
-    private LocalDateTime modifiedOn;
+	private String modifiedBy;
+	private LocalDateTime modifiedOn;
 
-    // Inverse side
-    @OneToOne(mappedBy = "product",
-              cascade = CascadeType.ALL,
-              orphanRemoval = true,
-              fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private Item item;
+	@OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	@JsonManagedReference
+	private Item item;
 
-    // ===== Getters & Setters =====
 
-    public Long getId() { return id; }
+	public Long getId() {
+		return id;
+	}
 
-    public String getProductName() { return productName; }
+	public String getProductName() {
+		return productName;
+	}
 
-    public void setProductName(String productName) { this.productName = productName; }
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
 
-    public String getCreatedBy() { return createdBy; }
+	public String getCreatedBy() {
+		return createdBy;
+	}
 
-    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-    public LocalDateTime getCreatedOn() { return createdOn; }
+	public LocalDateTime getCreatedOn() {
+		return createdOn;
+	}
 
-    public void setCreatedOn(LocalDateTime createdOn) { this.createdOn = createdOn; }
+	public void setCreatedOn(LocalDateTime createdOn) {
+		this.createdOn = createdOn;
+	}
 
-    public String getModifiedBy() { return modifiedBy; }
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
 
-    public void setModifiedBy(String modifiedBy) { this.modifiedBy = modifiedBy; }
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
+	}
 
-    public LocalDateTime getModifiedOn() { return modifiedOn; }
+	public LocalDateTime getModifiedOn() {
+		return modifiedOn;
+	}
 
-    public void setModifiedOn(LocalDateTime modifiedOn) { this.modifiedOn = modifiedOn; }
+	public void setModifiedOn(LocalDateTime modifiedOn) {
+		this.modifiedOn = modifiedOn;
+	}
 
-    public Item getItem() { return item; }
+	public Item getItem() {
+		return item;
+	}
 
-    public void setItem(Item item) {
-        this.item = item;
-        if (item != null) {
-            item.setProduct(this); // maintain bidirectional sync
-        }
-    }
+	public void setItem(Item item) {
+		this.item = item;
+		if (item != null) {
+			item.setProduct(this); 
+		}
+	}
 }
