@@ -5,9 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,80 +15,47 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtServiceImpl jwtServiceImpl;
+	@Autowired
+	private JwtServiceImpl jwtServiceImpl;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+	@Autowired
+	private UserDetailsService userDetailsService;
 
-    @Override
-    protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
-        // ✅ Extract token from cookie instead of header
-        String jwt = extractTokenFromCookie(request);
+		extractTokenFromCookie(request, "accessToken").ifPresent(jwt -> {
+			try {
+				String username = jwtServiceImpl.extractUsername(jwt);
 
-        if (jwt == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+				if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+					UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+					if (jwtServiceImpl.isTokenValid(jwt, userDetails)) {
+						var authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+								userDetails.getAuthorities());
+						authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+						SecurityContextHolder.getContext().setAuthentication(authToken);
+					}
+				}
+			} catch (Exception ex) {
+				System.out.println("[JWT Filter] Invalid token: " + ex.getMessage());
+			}
+		});
 
-        try {
-            String username = jwtServiceImpl.extractUsername(jwt);
+		filterChain.doFilter(request, response);
+	}
 
-            if (username != null &&
-                    SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                UserDetails userDetails =
-                        userDetailsService.loadUserByUsername(username);
-
-                if (jwtServiceImpl.isTokenValid(jwt, userDetails)) {
-
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource()
-                                    .buildDetails(request)
-                    );
-
-                    SecurityContextHolder.getContext()
-                            .setAuthentication(authToken);
-                }
-            }
-
-        } catch (Exception ex) {
-            // Do not break request pipeline
-            System.out.println("Invalid JWT: " + ex.getMessage());
-        }
-
-        filterChain.doFilter(request, response);
-    }
-
-    // ✅ NEW METHOD
-    private String extractTokenFromCookie(HttpServletRequest request) {
-
-        if (request.getCookies() == null) {
-            return null;
-        }
-
-        for (Cookie cookie : request.getCookies()) {
-            if ("accessToken".equals(cookie.getName())) {
-                return cookie.getValue();
-            }
-        }
-
-        return null;
-    }
+	private Optional<String> extractTokenFromCookie(HttpServletRequest request, String cookieName) {
+		if (request.getCookies() == null)
+			return Optional.empty();
+		return Arrays.stream(request.getCookies()).filter(c -> cookieName.equals(c.getName())).map(Cookie::getValue)
+				.findFirst();
+	}
 }

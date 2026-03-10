@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Signup</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -35,6 +36,7 @@
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 14px;
+            box-sizing: border-box;
         }
 
         button {
@@ -78,6 +80,7 @@
         }
     </style>
 </head>
+
 <body>
 
 <div class="card">
@@ -86,54 +89,74 @@
     <div id="message"></div>
 
     <form id="signupForm">
-        <input type="text" id="username" placeholder="Username" required/>
-        <input type="password" id="password" placeholder="Password" required/>
-        
-        <select id="role">
+        <input 
+            type="text" 
+            id="username" 
+            placeholder="Username"
+            autocomplete="username"
+            required
+        />
+
+        <input 
+            type="password" 
+            id="password"
+            placeholder="Password"
+            autocomplete="new-password"
+            required
+        />
+
+        <select id="role" required>
             <option value="USER">USER</option>
             <option value="ADMIN">ADMIN</option>
         </select>
 
         <button type="submit" class="signup-btn">Signup</button>
-        <button type="button" class="login-btn" onclick="goToLogin()">Already have account? Login</button>
+
+        <button type="button" class="login-btn" onclick="goToLogin()">
+            Already have an account? Login
+        </button>
     </form>
 </div>
 
 <script>
-document.getElementById("signupForm").addEventListener("submit", async function(e) {
-    e.preventDefault();
+const form = document.getElementById("signupForm");
+const messageDiv = document.getElementById("message");
 
-    const messageDiv = document.getElementById("message");
+form.addEventListener("submit", async function(e) {
+    e.preventDefault();
     messageDiv.innerHTML = "";
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const role = document.getElementById("role").value;
+
+    if (!username || !password) {
+        messageDiv.innerHTML = "<div class='error'>Username and password are required</div>";
+        return;
+    }
 
     try {
         const response = await fetch("/api/v1/signup", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({
-                username: document.getElementById("username").value,
-                password: document.getElementById("password").value,
-                role: document.getElementById("role").value
+                username: username,
+                password: password,
+                role: role
             })
         });
 
-        if (!response.ok) {
-            throw new Error("Signup failed");
+        if (response.ok) {
+            messageDiv.innerHTML = "<div class='success'>Signup successful! Redirecting to login...</div>";
+            setTimeout(() => window.location.href = "/login-page", 1500);
+        } else {
+            const text = await response.text();
+            messageDiv.innerHTML = "<div class='error'>" + (text || "Signup failed") + "</div>";
         }
-
-        const data = await response.json();
-
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("refreshToken", data.refreshToken);
-
-        messageDiv.innerHTML = "<div class='success'>Signup successful!</div>";
-
-        setTimeout(() => {
-            window.location.href = "/products-page";
-        }, 1000);
-
-    } catch (error) {
-        messageDiv.innerHTML = "<div class='error'>Signup failed. Try different username.</div>";
+    } catch (err) {
+        messageDiv.innerHTML = "<div class='error'>Server error. Please try again.</div>";
     }
 });
 

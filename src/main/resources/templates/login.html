@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -35,6 +36,7 @@
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 14px;
+            box-sizing: border-box;
         }
 
         button {
@@ -76,8 +78,28 @@
             text-align: center;
             margin-bottom: 10px;
         }
+
+        .password-box {
+            position: relative;
+        }
+
+        .password-box input {
+            padding-right: 60px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 13px;
+            color: #4e73df;
+            user-select: none;
+        }
     </style>
 </head>
+
 <body>
 
 <div class="card">
@@ -86,43 +108,85 @@
     <div id="message"></div>
 
     <form id="loginForm">
-        <input type="text" id="username" placeholder="Username" required/>
-        <input type="password" id="password" placeholder="Password" required/>
+        <input 
+            type="text" 
+            id="username" 
+            placeholder="Username" 
+            autocomplete="username"
+            required
+        />
+
+        <div class="password-box">
+            <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                placeholder="Password"
+                autocomplete="current-password"
+                required
+            >
+            <span class="toggle-password" onclick="togglePassword()">Show</span>
+        </div>
 
         <button type="submit" class="login-btn">Login</button>
-        <button type="button" class="signup-btn" onclick="goToSignup()">Don't have account? Signup</button>
+        <button type="button" class="signup-btn" onclick="goToSignup()">
+            Don't have account? Signup
+        </button>
     </form>
 </div>
 
 <script>
-	document.getElementById("loginForm").addEventListener("submit", async function(e) {
-	    e.preventDefault();
+const form = document.getElementById("loginForm");
+const messageDiv = document.getElementById("message");
 
-	    try {
-	        const response = await fetch("/api/v1/login", {
-	            method: "POST",
-	            headers: { "Content-Type": "application/json" },
-	            credentials: "include",
-	            body: JSON.stringify({
-	                username: document.getElementById("username").value,
-	                password: document.getElementById("password").value
-	            })
-	        });
+form.addEventListener("submit", async function(e) {
+    e.preventDefault();
 
-	        if (!response.ok) {
-	            throw new Error("Invalid credentials");
-	        }
+    messageDiv.innerHTML = "";
 
-	        window.location.href = "/products-page";
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-	    } catch (error) {
-	        document.getElementById("message").innerHTML =
-	            "<div class='error'>Invalid username or password</div>";
-	    }
-	});
+    try {
+        const response = await fetch("/api/v1/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        });
+
+        if (response.ok) {
+            window.location.href = "/products-page";
+        } else {
+            const text = await response.text();
+            messageDiv.innerHTML = "<div class='error'>" + (text || "Invalid username or password") + "</div>";
+        }
+
+    } catch (err) {
+        messageDiv.innerHTML = "<div class='error'>Server error. Please try again.</div>";
+    }
+});
 
 function goToSignup() {
-    window.location.href = "/signup";
+    window.location.href = "/signup-page";
+}
+
+function togglePassword() {
+    const passwordInput = document.getElementById("password");
+    const toggle = document.querySelector(".toggle-password");
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggle.textContent = "Hide";
+    } else {
+        passwordInput.type = "password";
+        toggle.textContent = "Show";
+    }
 }
 </script>
 

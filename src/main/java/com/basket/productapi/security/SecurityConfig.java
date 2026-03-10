@@ -1,6 +1,9 @@
 package com.basket.productapi.security;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,128 +20,53 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-        .formLogin(form -> form.disable())
-        .httpBasic(basic -> basic.disable())
-                // ❗ Still stateless (we are using JWT, not session)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+		http.csrf(csrf -> csrf.disable())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.formLogin(form -> form.disable()).httpBasic(basic -> basic.disable())
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/login-page", "/signup-page", "/css/**", "/js/**")
+						.permitAll().requestMatchers("/api/v1/login", "/api/v1/signup", "/api/v1/refresh").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/v1/products/**").hasAnyRole("USER", "ADMIN")
+						.requestMatchers(HttpMethod.POST, "/api/v1/products/**").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.PUT, "/api/v1/products/**").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").hasRole("ADMIN")
+						.requestMatchers("/api/v1/purchases/**").hasRole("USER").requestMatchers("/api/v1/profile")
+						.hasAnyRole("USER", "ADMIN").anyRequest().authenticated())
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+		return http.build();
+	}
 
-                // CSRF disabled (acceptable for stateless JWT)
-                .csrf(csrf -> csrf.disable())
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
 
-                // Enable CORS
-                .cors(cors -> {})
+		return config.getAuthenticationManager();
+	}
 
-                .authorizeHttpRequests(auth -> auth
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder(10);
+	}
 
-                        // Public HTML Pages
-                		.requestMatchers("/", "/login-page", "/signup-page",
-                		        "/products",   // ✅ ADD THIS
-                		        "/create-product",
-                		        "/edit-product",
-                		        "/products",
-                		        "/my-products",
-                		        "/error", "/css/**", "/js/**", "/favicon.ico",
-                		        "/.well-known/**")
-                		.permitAll()
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
 
-                        // Public APIs
-                        .requestMatchers("/api/v1/login",
-                                "/api/v1/signup",
-                                "/api/v1/refresh")
-                        .permitAll()
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(List.of("http://localhost:8080"));
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(List.of("*"));
+		configuration.setAllowCredentials(true);
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
 
-                        // Swagger
-                        .requestMatchers("/swagger-ui/**",
-                                "/v3/api-docs/**")
-                        .permitAll()
-
-                        // 🔐 Product APIs
-                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**")
-                        .hasAnyRole("USER", "ADMIN")
-
-                    .requestMatchers(HttpMethod.POST, "/api/v1/products/**")
-                        .hasRole("ADMIN")
-
-                    .requestMatchers(HttpMethod.PUT, "/api/v1/products/**")
-                        .hasRole("ADMIN")
-
-                    .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**")
-                        .hasRole("ADMIN")
-                        
-                     // ✅ Purchases
-                        .requestMatchers(HttpMethod.POST, "/api/v1/purchases/**")
-                        .hasRole("USER")
-
-                        .requestMatchers(HttpMethod.GET, "/api/v1/purchases/**")
-                        .hasRole("USER")
-                        
-                     // 👤 User Profile
-                        .requestMatchers(HttpMethod.GET, "/api/v1/profile")
-                        .hasAnyRole("USER","ADMIN")
-
-                        .anyRequest().authenticated()
-                )
-
-                // Add JWT filter
-                .addFilterBefore(jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
-
-    // AuthenticationManager Bean
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    // Password Encoder
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    // ✅ IMPORTANT: CORS CONFIG FOR COOKIE AUTH
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // ⚠ DO NOT USE "*" when using cookies
-        configuration.setAllowedOrigins(
-                List.of("http://localhost:8080")
-        );
-
-        configuration.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
-        );
-
-        configuration.setAllowedHeaders(List.of("*"));
-
-        // ✅ MUST be true for cookies
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }
+		return source;
+	}
 }

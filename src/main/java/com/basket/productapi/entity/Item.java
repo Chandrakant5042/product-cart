@@ -5,35 +5,38 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "item",
-       uniqueConstraints = {
-           @UniqueConstraint(name = "uk_product_id", columnNames = "product_id")
-       })
+@Table(name = "item", uniqueConstraints = { @UniqueConstraint(name = "uk_product_id", columnNames = "product_id") })
 public class Item {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private Integer quantity;
+	@Column(nullable = false)
+	private Integer quantity;
 
-    @OneToOne
-    @JoinColumn(name = "product_id",
-                nullable = false,
-                unique = true)
-    @JsonBackReference
-    private Product product;
+	@OneToOne
+	@JoinColumn(name = "product_id", nullable = false, unique = true)
+	@JsonBackReference
+	private Product product;
 
-    // ===== Getters & Setters =====
+	public Long getId() {
+		return id;
+	}
 
-    public Long getId() { return id; }
+	public Integer getQuantity() {
+		return quantity;
+	}
 
-    public Integer getQuantity() { return quantity; }
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
+	}
 
-    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+	public Product getProduct() {
+		return product;
+	}
 
-    public Product getProduct() { return product; }
-
-    public void setProduct(Product product) { this.product = product; }
+	public void setProduct(Product product) {
+		this.product = product;
+	}
 }

@@ -1,436 +1,452 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>Products</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Products</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+	<style>
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		}
 
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #4e73df, #1cc88a);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+		body {
+			min-height: 100vh;
+			background: linear-gradient(135deg, #4e73df, #1cc88a);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 20px;
+		}
 
-        .container {
-            background: white;
-            width: 100%;
-            max-width: 950px;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
+		.container {
+			background: white;
+			width: 100%;
+			max-width: 950px;
+			padding: 30px;
+			border-radius: 12px;
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+		}
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
+		.header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 25px;
+		}
 
-        h2 {
-            color: #333;
-            font-weight: 600;
-        }
+		h2 {
+			color: #333;
+			font-weight: 600;
+		}
 
-        .btn {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.3s ease;
-        }
+		.btn {
+			padding: 8px 14px;
+			border: none;
+			border-radius: 6px;
+			cursor: pointer;
+			font-size: 14px;
+			transition: 0.3s;
+		}
 
-        .btn-create {
-            background-color: #1cc88a;
-            color: white;
-            margin-right: 8px;
-        }
+		.btn-create {
+			background: #1cc88a;
+			color: white;
+			margin-right: 8px;
+		}
 
-        .btn-create:hover {
-            background-color: #17a673;
-        }
+		.btn-create:hover {
+			background: #17a673;
+		}
 
-        .btn-logout {
-            background-color: #e74a3b;
-            color: white;
-        }
+		.btn-logout {
+			background: #e74a3b;
+			color: white;
+		}
 
-        .btn-logout:hover {
-            background-color: #c0392b;
-        }
+		.btn-logout:hover {
+			background: #c0392b;
+		}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 10px;
+		}
 
-        thead {
-            background-color: #4e73df;
-            color: white;
-        }
+		thead {
+			background: #4e73df;
+			color: white;
+		}
 
-        th, td {
-            padding: 12px;
-            text-align: center;
-        }
+		th,
+		td {
+			padding: 12px;
+			text-align: center;
+		}
 
-        th {
-            font-weight: 600;
-        }
+		tbody tr:nth-child(even) {
+			background: #f8f9fc;
+		}
 
-        tbody tr:nth-child(even) {
-            background-color: #f8f9fc;
-        }
+		tbody tr:hover {
+			background: #e2e6f5;
+		}
 
-        tbody tr:hover {
-            background-color: #e2e6f5;
-            transition: 0.2s ease;
-        }
+		.btn-edit {
+			background: #f6c23e;
+			color: white;
+			padding: 6px 10px;
+			font-size: 13px;
+			border-radius: 5px;
+			border: none;
+			cursor: pointer;
+		}
 
-        .btn-edit {
-            background-color: #f6c23e;
-            color: white;
-            padding: 6px 10px;
-            font-size: 13px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-        }
+		.btn-delete {
+			background: #e74a3b;
+			color: white;
+			padding: 6px 10px;
+			font-size: 13px;
+			border-radius: 5px;
+			border: none;
+			cursor: pointer;
+		}
 
-        .btn-edit:hover {
-            background-color: #dda20a;
-        }
-
-        .btn-delete {
-            background-color: #e74a3b;
-            color: white;
-            padding: 6px 10px;
-            font-size: 13px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-delete:hover {
-            background-color: #c0392b;
-        }
-
-        .empty-message {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-
-        /* Pagination Styling */
-
-        #pagination {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .page-btn {
-            background-color: #4e73df;
-            color: white;
-            border: none;
-            padding: 7px 14px;
-            margin: 0 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s ease;
-        }
-
-        .page-btn:hover:not(:disabled) {
-            background-color: #2e59d9;
-        }
-
-        .page-btn:disabled {
-            background-color: #cdd4f6;
-            cursor: not-allowed;
-        }
-
-        .page-info {
-            margin: 0 10px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        @media (max-width: 600px) {
-            th, td {
-                font-size: 12px;
-                padding: 8px;
-            }
-
-            .btn {
-                font-size: 12px;
-                padding: 6px 10px;
-            }
-        }
 		.btn-buy {
-		    background-color: #1cc88a;
-		    color: white;
-		    padding: 6px 10px;
-		    font-size: 13px;
-		    border-radius: 5px;
-		    border: none;
-		    cursor: pointer;
+			background: #1cc88a;
+			color: white;
+			padding: 6px 10px;
+			font-size: 13px;
+			border-radius: 5px;
+			border: none;
+			cursor: pointer;
 		}
 
-		.btn-buy:hover {
-		    background-color: #17a673;
+		.empty-message {
+			text-align: center;
+			padding: 20px;
+			color: #666;
 		}
-    </style>
+
+		#pagination {
+			margin-top: 20px;
+			text-align: center;
+		}
+
+		.page-btn {
+			background: #4e73df;
+			color: white;
+			border: none;
+			padding: 7px 14px;
+			margin: 0 5px;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+
+		.page-btn:disabled {
+			background: #cdd4f6;
+			cursor: not-allowed;
+		}
+
+		.page-info {
+			margin: 0 10px;
+			font-weight: 500;
+		}
+
+		@media(max-width:600px) {
+
+			th,
+			td {
+				font-size: 12px;
+				padding: 8px;
+			}
+
+			.btn {
+				font-size: 12px;
+				padding: 6px 10px;
+			}
+		}
+	</style>
 </head>
 
 <body>
 
-<div class="container">
+	<div class="container">
 
-    <div class="header">
-		
-        <h2>Product List</h2>
-        <div>
-			<button class="btn" onclick="goProfile()">Profile</button>
-			<button class="btn" onclick="window.location.href='/my-products-page'">
-			My Purchases
-			</button>
-            <button id="createBtn" class="btn btn-create"
-                    onclick="window.location.href='/create-product-page'">
-                + Create Product
-            </button>
-            <button class="btn btn-logout" onclick="logout()">
-                Logout
-            </button>
-        </div>
-    </div>
+		<div class="header">
 
-    <table>
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Product Name</th>
-			<th>Quantity</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody id="productTable"></tbody>
-    </table>
+			<h2>Product List</h2>
 
-    <div id="pagination"></div>
+			<div>
+				<button class="btn" onclick="goProfile()">Profile</button>
 
-</div>
+				<button class="btn" onclick="window.location.href='/my-products-page'">
+					My Purchases
+				</button>
 
-<script>
+				<button id="createBtn" class="btn btn-create" onclick="window.location.href='/create-product-page'"
+					style="display:none">
+					+ Create Product
+				</button>
 
-function goProfile(){
-    window.location.href="/profile-page";
-}
+				<button class="btn btn-logout" onclick="logout()">Logout</button>
+			</div>
 
-let currentPage = 0;
-let currentUserRole = "";
+		</div>
 
-/* ---------------- LOAD CURRENT USER ---------------- */
+		<table>
 
-async function loadCurrentUser(){
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Product Name</th>
+					<th>Quantity</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
 
-    const response = await fetch("/api/v1/profile",{
-        credentials:"include"
-    });
+			<tbody id="productTable"></tbody>
 
-    if(!response.ok){
-        window.location.href="/login-page";
-        return;
-    }
+		</table>
 
-    const user = await response.json();
+		<div id="pagination"></div>
 
-    if(user.role === "ROLE_ADMIN"){
-        currentUserRole = "ADMIN";
-        document.getElementById("createBtn").style.display="inline-block";
-    }else{
-        currentUserRole = "USER";
-        document.getElementById("createBtn").style.display="none";
-    }
-}
+	</div>
 
-/* ---------------- LOAD PRODUCTS ---------------- */
+	<script>
 
-async function loadProducts(page = 0) {
+		function goProfile() {
+			window.location.href = "/profile-page";
+		}
 
-    currentPage = page;
+		let currentPage = 0;
+		let currentUserRole = "";
 
-    try {
+		/* ---------- LOAD USER ---------- */
 
-        const response = await fetch(`/api/v1/products?page=${page}`,{
-            credentials:"include"
-        });
+		async function loadCurrentUser() {
 
-        if(response.status === 401 || response.status === 403){
-            window.location.href="/login-page";
-            return;
-        }
+			try {
 
-        const data = await response.json();
+				const response = await fetch("/api/v1/profile", {credentials: "include"});
 
-        let table = "";
+				if (!response.ok) {
+					window.location.href = "/login-page";
+					return;
+				}
 
-        if(!data.content || data.content.length === 0){
-            table = `<tr><td colspan="4" class="empty-message">No products found</td></tr>`;
-        }else{
+				const user = await response.json();
 
-            data.content.forEach(p => {
+				if (user.role === "ROLE_ADMIN") {
+					currentUserRole = "ADMIN";
+					document.getElementById("createBtn").style.display = "inline-block";
+				} else {
+					currentUserRole = "USER";
+				}
 
-                let actions = "";
+			} catch (e) {
+				window.location.href = "/login-page";
+			}
 
-                if(currentUserRole === "ADMIN"){
-                    actions = `
-                        <button class="btn-edit" onclick="edit(${p.id})">Edit</button>
-                        <button class="btn-delete" onclick="deleteProduct(${p.id})">Delete</button>
-                    `;
-                }
+		}
 
-                if(currentUserRole === "USER"){
-                    actions = `
-                        <button class="btn-buy" onclick="buyProduct(${p.id})">Buy</button>
-                    `;
-                }
+		/* ---------- LOAD PRODUCTS ---------- */
 
-                table += `
-                <tr>
-                    <td>${p.id}</td>
-                    <td>${p.productName}</td>
-                    <td>${p.quantity ?? 0}</td>
-                    <td>${actions}</td>
-                </tr>
-                `;
-            });
-        }
+		async function loadProducts(page = 0) {
 
-        document.getElementById("productTable").innerHTML = table;
+			if (page < 0) page = 0;
 
-        document.getElementById("pagination").innerHTML = `
-            <button class="page-btn"
-                onclick="loadProducts(${currentPage-1})"
-                ${data.page===0?'disabled':''}>
-                Previous
-            </button>
+			currentPage = page;
 
-            <span class="page-info">
-                Page ${data.page+1} of ${data.totalPages}
-            </span>
+			try {
 
-            <button class="page-btn"
-                onclick="loadProducts(${currentPage+1})"
-                ${data.page+1>=data.totalPages?'disabled':''}>
-                Next
-            </button>
-        `;
+				const response = await fetch(`/api/v1/products?page=${page}`, {
+					credentials: "include"
+				});
 
-    }catch(e){
-        document.getElementById("productTable").innerHTML =
-            `<tr><td colspan="4" class="empty-message">Error loading products</td></tr>`;
-    }
-}
+				if (response.status === 401 || response.status === 403) {
+					window.location.href = "/login-page";
+					return;
+				}
 
-/* ---------------- PAGE LOAD ---------------- */
+				if (!response.ok) {
+					throw new Error();
+				}
 
-(async function(){
-    await loadCurrentUser();
-    loadProducts();
-})();
+				const data = await response.json();
 
-/* ---------------- EDIT ---------------- */
+				let table = "";
 
-function edit(id){
-    window.location.href="/edit-product-page?id="+id;
-}
+				if (!data.content || data.content.length === 0) {
 
-/* ---------------- DELETE ---------------- */
+					table = `<tr><td colspan="4" class="empty-message">No products found</td></tr>`;
 
-async function deleteProduct(id){
+				} else {
 
-    if(!confirm("Delete this product?")) return;
+					data.content.forEach(p => {
 
-    try{
+						const id = p.id ?? "";
+						const name = p.productName ?? "N/A";
+						const qty = p.quantity ?? 0;
 
-        const response = await fetch(`/api/v1/products/${id}`,{
-            method:"DELETE",
-            credentials:"include"
-        });
+						let actions = "";
 
-        if(response.status===401){
-            alert("Session expired");
-            window.location.href="/login-page";
-            return;
-        }
+						if (currentUserRole === "ADMIN") {
+							actions = `
+<button class="btn-edit" onclick="edit(${id})">Edit</button>
+<button class="btn-delete" onclick="deleteProduct(${id})">Delete</button>
+`;
+						}
 
-        if(!response.ok){
-            throw new Error();
-        }
+						if (currentUserRole === "USER") {
+							actions = `
+<button class="btn-buy" onclick="buyProduct(${id})">Buy</button>
+`;
+						}
 
-        alert("Product deleted");
-        loadProducts();
+						table += `
+<tr>
+<td>${id}</td>
+<td>${name}</td>
+<td>${qty}</td>
+<td>${actions}</td>
+</tr>
+`;
 
-    }catch(e){
-        alert("Delete failed");
-    }
-}
+					});
 
-/* ---------------- BUY ---------------- */
+				}
 
-async function buyProduct(productId){
+				document.getElementById("productTable").innerHTML = table;
 
-    if(!confirm("Do you want to buy this product?")) return;
+				const pageNumber = data.page ?? 0;
+				const totalPages = data.totalPages ?? 1;
 
-    try{
+				document.getElementById("pagination").innerHTML = `
 
-        const response = await fetch("/api/v1/purchases/"+productId,{
-            method:"POST",
-            credentials:"include"
-        });
+<button class="page-btn"
+onclick="loadProducts(${pageNumber - 1})"
+${pageNumber === 0 ? 'disabled' : ''}>
+Previous
+</button>
 
-        if(response.status===401 || response.status===403){
-            window.location.href="/login-page";
-            return;
-        }
+<span class="page-info">
+Page ${pageNumber + 1} of ${totalPages}
+</span>
 
-        if(!response.ok){
-            throw new Error();
-        }
+<button class="page-btn"
+onclick="loadProducts(${pageNumber + 1})"
+${pageNumber + 1 >= totalPages ? 'disabled' : ''}>
+Next
+</button>
+`;
 
-        alert("Product purchased successfully");
+			} catch (e) {
 
-    }catch(e){
-        alert("Purchase failed");
-    }
-}
+				document.getElementById("productTable").innerHTML =
+					`<tr><td colspan="4" class="empty-message">Error loading products</td></tr>`;
 
-/* ---------------- LOGOUT ---------------- */
+			}
 
-async function logout(){
+		}
 
-    try{
-        await fetch("/api/v1/logout",{
-            method:"POST",
-            credentials:"include"
-        });
-    }catch(e){}
+		/* ---------- PAGE INIT ---------- */
 
-    window.location.href="/login-page";
-}
+		(async function () {
 
-</script>
+			await loadCurrentUser();
+			loadProducts();
+
+		})();
+
+		/* ---------- EDIT ---------- */
+
+		function edit(id) {
+			window.location.href = "/edit-product-page?id=" + id;
+		}
+
+		/* ---------- DELETE ---------- */
+
+		async function deleteProduct(id) {
+
+			if (!confirm("Delete this product?")) return;
+
+			try {
+
+				const response = await fetch(`/api/v1/products/${id}`, {
+					method: "DELETE",
+					credentials: "include"
+				});
+
+				if (response.status === 401) {
+					window.location.href = "/login-page";
+					return;
+				}
+
+				if (!response.ok) {
+					throw new Error();
+				}
+
+				alert("Product deleted");
+				loadProducts(currentPage);
+
+			} catch (e) {
+				alert("Delete failed");
+			}
+
+		}
+
+		/* ---------- BUY ---------- */
+
+		async function buyProduct(productId) {
+
+			if (!confirm("Do you want to buy this product?")) return;
+
+			try {
+
+				const response = await fetch(`/api/v1/purchases/${productId}`, {
+					method: "POST",
+					credentials: "include"
+				});
+
+				if (response.status === 401 || response.status === 403) {
+					window.location.href = "/login-page";
+					return;
+				}
+
+				if (!response.ok) {
+					throw new Error();
+				}
+
+				alert("Product purchased successfully");
+
+			} catch (e) {
+				alert("Purchase failed");
+			}
+
+		}
+
+		/* ---------- LOGOUT ---------- */
+
+		async function logout() {
+
+			try {
+				await fetch("/api/v1/logout", {
+					method: "POST",
+					credentials: "include"
+				});
+			} catch (e) { }
+
+			window.location.href = "/login-page";
+
+		}
+
+	</script>
 
 </body>
+
 </html>

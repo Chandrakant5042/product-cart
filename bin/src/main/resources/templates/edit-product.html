@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Product</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #4e73df, #1cc88a);
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 350px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .update-btn {
+            background-color: #4e73df;
+            color: white;
+        }
+
+        .update-btn:hover {
+            background-color: #2e59d9;
+        }
+
+        .back-btn {
+            background-color: #858796;
+            color: white;
+        }
+
+        .back-btn:hover {
+            background-color: #6c757d;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: green;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Edit Product</h2>
+
+    <div id="message"></div>
+
+    <form id="editForm">
+        <input type="text" id="productName" placeholder="Product Name" required/>
+		<input type="number" id="quantity" placeholder="Quantity" min="0" required/>
+        <button type="submit" class="update-btn">Update Product</button>
+        <button type="button" class="back-btn" onclick="goBack()">Back to Products</button>
+    </form>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+const messageDiv = document.getElementById("message");
+
+async function loadProduct() {
+
+    try {
+        const response = await fetch("/api/v1/products/" + id, {
+            credentials: "include" // ✅ send cookies automatically
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            messageDiv.innerHTML = "<div class='error'>Session expired. Please login again.</div>";
+            setTimeout(() => window.location.href = "/login-page", 1500);
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error("Failed to load product");
+        }
+
+        const data = await response.json();
+
+        document.getElementById("productName").value = data.productName;
+        document.getElementById("quantity").value = data.quantity;
+
+    } catch (error) {
+        messageDiv.innerHTML = "<div class='error'>Unable to load product</div>";
+    }
+}
+
+document.getElementById("editForm").addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const messageDiv = document.getElementById("message");
+    messageDiv.innerHTML = "";
+
+    try {
+
+        const response = await fetch("/api/v1/products/" + id, {
+            method: "PUT",
+            credentials: "include", // send cookies automatically
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                productName: document.getElementById("productName").value,
+                quantity: parseInt(document.getElementById("quantity").value)
+            })
+        });
+
+        // ✅ Session expired check
+		if (response.status === 401) {
+
+		    messageDiv.innerHTML =
+		        "<div class='error'>Session expired. Please login again.</div>";
+
+		    setTimeout(() => {
+		        window.location.href = "/login-page";
+		    }, 1500);
+
+		    return;
+		}
+
+		if (response.status === 403) {
+
+		    messageDiv.innerHTML =
+		        "<div class='error'>You are not allowed to update this product.</div>";
+
+		    return;
+		}
+
+        // ❌ Other errors
+        if (!response.ok) {
+            throw new Error("Update failed");
+        }
+
+        // ✅ Success
+        messageDiv.innerHTML =
+            "<div class='success'>Product updated successfully!</div>";
+
+        setTimeout(() => {
+            window.location.href = "/products-page";
+        }, 1000);
+
+    }
+    catch (error) {
+
+        console.error("Update error:", error);
+
+        messageDiv.innerHTML =
+            "<div class='error'>Failed to update product</div>";
+    }
+
+});
+
+function goBack() {
+    window.location.href = "/products-page";
+}
+
+loadProduct();
+</script>
+
+</body>
+</html>

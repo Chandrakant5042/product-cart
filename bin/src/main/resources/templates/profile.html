@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#4e73df,#1cc88a);
+}
+
+.card{
+    background:white;
+    padding:40px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+    width:320px;
+    text-align:center;
+}
+
+h2{
+    margin-bottom:25px;
+}
+
+.info{
+    font-size:16px;
+    margin:12px 0;
+}
+
+.label{
+    font-weight:bold;
+}
+
+button{
+    margin-top:20px;
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:6px;
+    background:#4e73df;
+    color:white;
+    font-size:14px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#2e59d9;
+}
+
+.error{
+    color:red;
+    margin-bottom:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>My Profile</h2>
+
+<div id="message"></div>
+
+<div class="info">
+<span class="label">Username:</span>
+<span id="username">Loading...</span>
+</div>
+
+<div class="info">
+<span class="label">Role:</span>
+<span id="role">Loading...</span>
+</div>
+
+<button onclick="goBack()">Back to Products</button>
+
+</div>
+
+<script>
+
+async function loadProfile(){
+
+const messageDiv = document.getElementById("message");
+
+try{
+
+const response = await fetch("/api/v1/profile",{
+method:"GET",
+credentials:"include"
+});
+
+if(response.status === 401){
+
+messageDiv.innerHTML="<div class='error'>Session expired. Please login again.</div>";
+
+setTimeout(()=>{
+window.location.href="/login-page";
+},1500);
+
+return;
+}
+
+const data = await response.json();
+
+document.getElementById("username").innerText = data.username;
+
+// remove ROLE_ prefix
+document.getElementById("role").innerText =
+data.role.replace("ROLE_","");
+
+}
+catch(error){
+
+console.error("Profile load error:",error);
+
+messageDiv.innerHTML="<div class='error'>Failed to load profile</div>";
+
+}
+
+}
+
+function goBack(){
+window.location.href="/products-page";
+}
+
+document.addEventListener("DOMContentLoaded",loadProfile);
+
+</script>
+
+</body>
+</html>
